@@ -30,3 +30,8 @@ void Union(int x, int y, vector<int> &parent, vector<int> &rank)
 }
 // resize parent and rank by v
 // intialize rank by 0 and parent[i]=i;
+
+ rank.resize(n , 0) ; 
+ parent.resize(n,0) ; 
+ int itr=0;
+ for(auto &it : parent) it = itr++;
