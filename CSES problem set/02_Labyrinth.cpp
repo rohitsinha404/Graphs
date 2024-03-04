@@ -1,6 +1,8 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+// https://cses.fi/problemset/task/1193/
+
 // utility to get path
 vector<pair<int, int>> dir = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
 string dirDict = "RLDU";
@@ -8,7 +10,7 @@ string dirDict = "RLDU";
 char mpp[1001][1001];
 
 // child coordinates ---> {parent coord , which movement}
-map<pair<int, int>, pair<pair<int, int>, char>> parent;
+map<pair<int, int>, pair<int, int>> parent;
 
 pair<int, int> dest, src;
 
@@ -23,12 +25,11 @@ bool bfs(int i, int j, vector<vector<bool>> &vis, int n, int m)
     {
         auto [i, j] = q.front();
         q.pop();
-        int dirCnt = -1;
+
         // checking all directions
         for (auto [di, dj] : dir)
         {
             int x = di + i, y = dj + j;
-            dirCnt++;
 
             // for out of bound cases
             if (!(x >= 0 and x < n and y >= 0 and y < m))
@@ -37,15 +38,15 @@ bool bfs(int i, int j, vector<vector<bool>> &vis, int n, int m)
             // dest found
             if (mpp[x][y] == 'B')
             {
-                dest = {x, y};                              // populating dest
-                parent[{x, y}] = {{i, j}, dirDict[dirCnt]}; // adding in map
+                dest = {x, y};           // populating dest
+                parent[{x, y}] = {i, j}; // adding in map
                 return true;
             }
             else if (mpp[x][y] == '.' and vis[x][y] == false)
             {
 
                 q.push({x, y});
-                parent[{x, y}] = {{i, j}, dirDict[dirCnt]};
+                parent[{x, y}] = {i, j};
                 vis[x][y] = 1;
             }
         }
@@ -72,7 +73,7 @@ int main()
 
     // adding src to defined via # in map
 
-    parent[src] = {src, '#'};
+    parent[src] = src;
 
     // if bfs can find dest then this case
     if (bfs(src.first, src.second, vis, n, m))
@@ -82,20 +83,31 @@ int main()
         string ans = "";
 
         // backtracking
-        while (1)
-        {
-            auto [pi, pj] = parent[{i, j}].first; // getting parent coordinates
-            char path = parent[{i, j}].second;    // getting which moves was taken
+        int startX = src.first, startY = src.second, endX = dest.first, endY = dest.second;
 
-            if (path == '#') // found src
+        // dest --> src
+        while (true)
+        {
+            if (startX == endX and endY == startY)
                 break;
 
-            ans = path + ans;
+            auto [newX, newY] = parent[{endX, endY}];
 
-            i = pi;
-            j = pj;
+            if (endX - 1 == newX and endY == newY)
+                ans += 'D';
+
+            else if (endX + 1 == newX and endY == newY)
+                ans += 'U';
+
+            else if (endY - 1 == newY and endX == newX)
+                ans += 'R';
+            else
+                ans += 'L';
+
+            endX = newX;
+            endY = newY;
         }
-
+        reverse(ans.begin(), ans.end());
         cout << "YES" << endl
              << ans.size() << endl
              << ans << endl;
